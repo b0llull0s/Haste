@@ -16,5 +16,7 @@
 >`<DIRECTORY_NAME>`: This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
 # Contribution
 Feel free to contribute to this script by submitting issues or pull requests.
+# Disclaimer
+This script is intended for educational and ethical use only. By using this script, you agree that you will not use it for any illegal activities or to scan networks without proper authorization. Always ensure you have permission before scanning any IP addresses or networks. The author is not responsible for any misuse or damages resulting from the use of this script.
 
 > Happy Hacking!!
