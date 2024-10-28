@@ -13,7 +13,8 @@
 ./nmap_script.sh <IP_ADDRESS> <DIRECTORY_NAME>
 ```
 >[!NOTE]
->`<DIRECTORY_NAME>`: This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
+>`<DIRECTORY_NAME>`: Will be used as the domain name written on the `hosts` file.
+> This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
 # Contribution
 Feel free to contribute to this script by submitting issues or pull requests.
 # Disclaimer
