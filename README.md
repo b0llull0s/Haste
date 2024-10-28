@@ -10,7 +10,7 @@
 # Usage
 - Run the following command:
 ```bash
-./nmap_script.sh <IP_ADDRESS> <DIRECTORY_NAME>
+./haste.sh <IP_ADDRESS> <DIRECTORY_NAME>
 ```
 >[!NOTE]
 >`<DIRECTORY_NAME>`: Will be used as the domain name written on the `hosts` file.
