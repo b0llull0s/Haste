@@ -1,6 +1,6 @@
 # Haste
 > [!CAUTION]
-> Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and you will get you ban or arrested.
+> Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and will get you ban or arrested.
 # Features
 - Creates a directory for scan results.
 - Updates the /etc/hosts file with the specified IP address and directory name.
