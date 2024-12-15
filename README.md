@@ -1,6 +1,6 @@
 # Haste
 - Ideally, the ultimate Nmap script for CTF endeavours. Not quite yet there but someday.
-- I need to work on the scripts feature to make ir more smooth.
+- I need to work on the scripts feature to make it more smooth.
 > [!CAUTION]
 > Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and will get you ban or arrested.
 # Usage
