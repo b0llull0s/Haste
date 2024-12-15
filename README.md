@@ -1,20 +1,17 @@
 # Haste
+- Ideally, the ultimate Nmap script for CTF endeavours. Not quite yet there but someday. 
 > [!CAUTION]
 > Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and will get you ban or arrested.
-# Features
-- Creates a directory for scan results.
-- Updates the /etc/hosts file with the specified IP address and directory name.
-- Performs a fast Nmap scan to identify open ports.
-- Conducts a detailed scan on the discovered ports.
-- Saves the results in various formats (GNMAP, XML, and plain text).
 # Usage
-- Run the following command:
-```bash
-./haste.sh <IP_ADDRESS> <DIRECTORY_NAME>
+- Example:
+```sh
+haste <IP> <host.htb> -full 
 ```
+- `HOSTNAME`: Optional hostname to be added to the /etc/hosts file.
+- `-udp`: Performs a UDP-only scan.
+- `-full`: Performs both TCP and UDP scans.
 >[!NOTE]
->`<DIRECTORY_NAME>`: Will be used as the domain name written on the `hosts` file.
-> This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
+>`<DIRECTORY_NAME>`: This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
 # Contribution
 Feel free to contribute to this script by submitting issues or pull requests.
 # Disclaimer
