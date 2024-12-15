@@ -8,11 +8,11 @@
 ```sh
 haste <IP> <host.htb> -full 
 ```
-- `HOSTNAME`: This is an optional hostname to be added to the `/etc/hosts` file.
-- `-udp`: Performs a `UDP` only scan.
-- `-full`: Performs both `TCP` and `UDP` scans.
+- `HOSTNAME`: This is one is optional; the hostname will be added to the `/etc/hosts` file.
 >[!NOTE]
 >`<DIRECTORY_NAME>`: This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
+- `-udp`: Performs a `UDP` only scan.
+- `-full`: Performs both `TCP` and `UDP` scans.
 # Contribution
 Feel free to contribute to this script by submitting issues or pull requests.
 # Disclaimer
