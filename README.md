@@ -1,5 +1,6 @@
 # Haste
-- Ideally, the ultimate Nmap script for CTF endeavours. Not quite yet there but someday. 
+- Ideally, the ultimate Nmap script for CTF endeavours. Not quite yet there but someday.
+- I need to work on the scripts feature to make ir more smooth.
 > [!CAUTION]
 > Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and will get you ban or arrested.
 # Usage
@@ -7,9 +8,9 @@
 ```sh
 haste <IP> <host.htb> -full 
 ```
-- `HOSTNAME`: Optional hostname to be added to the /etc/hosts file.
-- `-udp`: Performs a UDP-only scan.
-- `-full`: Performs both TCP and UDP scans.
+- `HOSTNAME`: This is an optional hostname to be added to the `/etc/hosts` file.
+- `-udp`: Performs a `UDP` only scan.
+- `-full`: Performs both `TCP` and `UDP` scans.
 >[!NOTE]
 >`<DIRECTORY_NAME>`: This feature is mainly designed to be used on HackTheBox; where domains normally are `box.htb`
 # Contribution
