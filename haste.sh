@@ -132,8 +132,6 @@ if [[ "$UDP_SCAN" == false ]]; then
     if [[ -n "$SORTED_TCP_PORTS" ]]; then
         info_msg "Performing detailed TCP service scan on ports: $SORTED_TCP_PORTS"
         ( sudo nmap -sCV -sV \
-          --version-intensity=7 \
-          --script=default,discovery,version,vuln \
           -oA nmap_tcp \
           -p "${SORTED_TCP_PORTS%,}" "$IP" 2>/dev/null ) & spinner $!
     fi
@@ -142,12 +140,8 @@ fi
 if [[ "$UDP_SCAN" == true || "$FULL_SCAN" == true ]]; then
     info_msg "Performing comprehensive UDP port discovery scan"
     ( sudo nmap -sU -p- \
-      --max-retries=2 \
       --min-rate=1000 \
       -oG udp_ports.txt \
-      --version-intensity=2 \
-      --disable-arp-ping \
-      -Pn \
       "$IP" 2>/dev/null ) & spinner $!
     
     SORTED_UDP_PORTS=$(grep -oP '([\d]+)/(open|open\|filtered)' udp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
@@ -158,7 +152,6 @@ if [[ "$UDP_SCAN" == true || "$FULL_SCAN" == true ]]; then
           -p "${SORTED_UDP_PORTS%,}" \
           --max-retries=2 \
           --version-intensity=9 \
-          --script="(default or discovery or version or vuln) and not (broadcast or dos or external)" \
           -oA nmap_udp \
           "$IP" 2>/dev/null ) & spinner $!
     else
