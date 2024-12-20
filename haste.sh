@@ -125,35 +125,25 @@ info_msg "Haste $IP...!!"
 
 if [[ "$UDP_SCAN" == false ]]; then
     info_msg "Performing TCP port discovery scan"
-    ( sudo nmap -p- --min-rate=10000 -oG tcp_ports.txt "$IP" 2>/dev/null ) & spinner $!
+    ( sudo nmap -p- --min-rate=10000 -Pn -oG tcp_ports.txt "$IP" 2>/dev/null ) & spinner $!
     
     SORTED_TCP_PORTS=$(grep -oP '([\d]+)/open' tcp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
     
     if [[ -n "$SORTED_TCP_PORTS" ]]; then
         info_msg "Performing detailed TCP service scan on ports: $SORTED_TCP_PORTS"
-        ( sudo nmap -sCV -sV \
-          -oA nmap_tcp \
-          -p "${SORTED_TCP_PORTS%,}" "$IP" 2>/dev/null ) & spinner $!
+        ( sudo nmap -sCV -sV -oA nmap_tcp -p "${SORTED_TCP_PORTS%,}" "$IP" 2>/dev/null ) & spinner $!
     fi
 fi
 
 if [[ "$UDP_SCAN" == true || "$FULL_SCAN" == true ]]; then
     info_msg "Performing comprehensive UDP port discovery scan"
-    ( sudo nmap -sU -p- \
-      --min-rate=1000 \
-      -oG udp_ports.txt \
-      "$IP" 2>/dev/null ) & spinner $!
+    ( sudo nmap -Pn -sU --min-rate=1000 -oG udp_ports.txt "$IP" 2>/dev/null ) & spinner $!
     
     SORTED_UDP_PORTS=$(grep -oP '([\d]+)/(open|open\|filtered)' udp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
     
     if [[ -n "$SORTED_UDP_PORTS" ]]; then
         info_msg "Performing detailed UDP service scan on ports: $SORTED_UDP_PORTS"
-        ( sudo nmap -sUCV \
-          -p "${SORTED_UDP_PORTS%,}" \
-          --max-retries=2 \
-          --version-intensity=9 \
-          -oA nmap_udp \
-          "$IP" 2>/dev/null ) & spinner $!
+        ( sudo nmap -sUCV -p "${SORTED_UDP_PORTS%,}" -oA nmap_udp "$IP" 2>/dev/null ) & spinner $!
     else
         info_msg "No open UDP ports discovered. Consider manual enumeration."
     fi
