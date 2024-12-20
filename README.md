@@ -1,6 +1,6 @@
 # Haste
 - Ideally, the ultimate Nmap script for CTF endeavours. Not quite yet there but someday.
-- I need to add a script feature and an option for `-Pn` scans.
+- The spinner function needs more love.
 > [!CAUTION]
 > Very vey noisy, that's why is fast... pls don't use it outside of CTF environments, it will disrupt any network and will get you ban or arrested.
 # Usage
