@@ -71,26 +71,21 @@ run_nmap_with_spinner() {
     local cmd="$1"
     local tempfile=$(mktemp)
     
-    # Start the nmap command in background and redirect output to tempfile
     eval "$cmd" > "$tempfile" 2>&1 &
     local nmap_pid=$!
     
-    # Wait until "Starting Nmap" appears or 2 seconds have passed
     local counter=0
     while ! grep -q "Starting Nmap" "$tempfile" && [ $counter -lt 20 ]; do
         sleep 0.1
         ((counter++))
     done
     
-    # Start spinner only after "Starting Nmap" appears
     if [ $counter -lt 20 ]; then
         skull_spinner $nmap_pid
     else
-        # If "Starting Nmap" doesn't appear, just wait for completion
         wait $nmap_pid
     fi
     
-    # Show output from tempfile
     cat "$tempfile"
     rm "$tempfile"
 }
