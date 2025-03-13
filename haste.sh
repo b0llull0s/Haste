@@ -74,36 +74,27 @@ run_nmap_with_spinner() {
     
     mkfifo "$fifo"
     
-    # Start the nmap command in background and redirect output to both tempfile and fifo
     eval "$cmd" > "$tempfile" 2>&1 &
     local nmap_pid=$!
     
-    # Monitor fifo for "Starting Nmap" in a background process
     (
-        # Create a flag file when "Starting Nmap" is detected
         tail -f "$tempfile" | grep -m 1 "Starting Nmap" > /dev/null 2>&1
         echo "start" > "$fifo"
     ) &
     local monitor_pid=$!
     
-    # Wait for the signal or timeout
     read -t 5 line < "$fifo" || true
     
-    # Kill the monitor process if it's still running
     kill $monitor_pid 2>/dev/null || true
     
-    # Only now start the spinner (after "Starting Nmap" was detected)
     if [ "$line" = "start" ]; then
         skull_spinner $nmap_pid
     else
-        # If "Starting Nmap" doesn't appear, just wait for completion
         wait $nmap_pid
     fi
     
-    # Show output from tempfile
     cat "$tempfile"
     
-    # Cleanup
     rm "$tempfile"
     rm "$fifo"
 }
