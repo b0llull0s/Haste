@@ -64,7 +64,48 @@ skull_spinner() {
         skull_idx=$(( i % 2 ))
         bar+="${skulls[$skull_idx]} "
     done
-    printf "\r${GREEN}[%s] ✔ Spell completed successfully! ${NC}\n" "$bar"
+    printf "\r${GREEN}[%s] ✔ Spell completed successfully! ${NC}\n\n" "$bar"
+}
+
+run_nmap_with_spinner() {
+    local cmd="$1"
+    local tempfile=$(mktemp)
+    local fifo=$(mktemp -u)
+    
+    mkfifo "$fifo"
+    
+    # Start the nmap command in background and redirect output to both tempfile and fifo
+    eval "$cmd" > "$tempfile" 2>&1 &
+    local nmap_pid=$!
+    
+    # Monitor fifo for "Starting Nmap" in a background process
+    (
+        # Create a flag file when "Starting Nmap" is detected
+        tail -f "$tempfile" | grep -m 1 "Starting Nmap" > /dev/null 2>&1
+        echo "start" > "$fifo"
+    ) &
+    local monitor_pid=$!
+    
+    # Wait for the signal or timeout
+    read -t 5 line < "$fifo" || true
+    
+    # Kill the monitor process if it's still running
+    kill $monitor_pid 2>/dev/null || true
+    
+    # Only now start the spinner (after "Starting Nmap" was detected)
+    if [ "$line" = "start" ]; then
+        skull_spinner $nmap_pid
+    else
+        # If "Starting Nmap" doesn't appear, just wait for completion
+        wait $nmap_pid
+    fi
+    
+    # Show output from tempfile
+    cat "$tempfile"
+    
+    # Cleanup
+    rm "$tempfile"
+    rm "$fifo"
 }
 
 error_msg() {
@@ -192,7 +233,7 @@ info_msg "Haste $TARGET...!!"
 
 if [[ "$STEALTH_MODE" == true ]]; then
     info_msg "Running in stealth mode with fragmented packets"
-    ( sudo nmap -f -n -Pn --data-length 32 "$TARGET" 2>/dev/null ) & skull_spinner $!
+    run_nmap_with_spinner "sudo nmap -f -n -Pn --data-length 32 '$TARGET'"
     success_msg "Stealth scan completed."
     exit 0
 fi
@@ -200,15 +241,15 @@ fi
 if [[ "$UDP_SCAN" == false ]]; then
     info_msg "Performing TCP port discovery scan"
     if [[ "$NO_DIR" == true ]]; then
-        ( sudo nmap -p- --min-rate=10000 -Pn "$TARGET" 2>/dev/null ) & skull_spinner $!
+        run_nmap_with_spinner "sudo nmap -p- --min-rate=10000 -Pn '$TARGET'"
     else
-        ( sudo nmap -p- --min-rate=10000 -Pn -oG tcp_ports.txt "$TARGET" 2>/dev/null ) & skull_spinner $!
+        run_nmap_with_spinner "sudo nmap -p- --min-rate=10000 -Pn -oG tcp_ports.txt '$TARGET'"
         
         SORTED_TCP_PORTS=$(grep -oP '([\d]+)/open' tcp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
         
         if [[ -n "$SORTED_TCP_PORTS" ]]; then
             info_msg "Performing detailed TCP service scan on ports: $SORTED_TCP_PORTS"
-            ( sudo nmap -sCV -sV -oA nmap_tcp -p "${SORTED_TCP_PORTS%,}" "$TARGET" 2>/dev/null ) & skull_spinner $!
+            run_nmap_with_spinner "sudo nmap -sCV -sV -oA nmap_tcp -p '${SORTED_TCP_PORTS%,}' '$TARGET'"
         fi
     fi
 fi
@@ -216,15 +257,15 @@ fi
 if [[ "$UDP_SCAN" == true || "$FULL_SCAN" == true ]]; then
     info_msg "Performing comprehensive UDP port discovery scan"
     if [[ "$NO_DIR" == true ]]; then
-        ( sudo nmap -Pn -sU --min-rate=1000 "$TARGET" 2>/dev/null ) & skull_spinner $!
+        run_nmap_with_spinner "sudo nmap -Pn -sU --min-rate=1000 '$TARGET'"
     else
-        ( sudo nmap -Pn -sU --min-rate=1000 -oG udp_ports.txt "$TARGET" 2>/dev/null ) & skull_spinner $!
+        run_nmap_with_spinner "sudo nmap -Pn -sU --min-rate=1000 -oG udp_ports.txt '$TARGET'"
         
         SORTED_UDP_PORTS=$(grep -oP '([\d]+)/(open|open\|filtered)' udp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
         
         if [[ -n "$SORTED_UDP_PORTS" ]]; then
             info_msg "Performing detailed UDP service scan on ports: $SORTED_UDP_PORTS"
-            ( sudo nmap -sUCV -p "${SORTED_UDP_PORTS%,}" -oA nmap_udp "$TARGET" 2>/dev/null ) & skull_spinner $!
+            run_nmap_with_spinner "sudo nmap -sUCV -p '${SORTED_UDP_PORTS%,}' -oA nmap_udp '$TARGET'"
         else
             info_msg "No open UDP ports discovered. Consider manual enumeration."
         fi
