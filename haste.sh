@@ -240,7 +240,7 @@ if [[ "$UDP_SCAN" == false ]]; then
         
         if [[ -n "$SORTED_TCP_PORTS" ]]; then
             info_msg "Performing detailed TCP service scan on ports: $SORTED_TCP_PORTS"
-            run_nmap_with_spinner "sudo nmap -sCV -sV -oA nmap_tcp -p '${SORTED_TCP_PORTS%,}' '$TARGET'"
+            run_nmap_with_spinner "sudo nmap -sCV -oA nmap_tcp -p '${SORTED_TCP_PORTS%,}' '$TARGET'"
         fi
     fi
 fi
