@@ -74,27 +74,36 @@ run_nmap_with_spinner() {
     
     mkfifo "$fifo"
     
+    # Start the nmap command in background and redirect output to both tempfile and fifo
     eval "$cmd" > "$tempfile" 2>&1 &
     local nmap_pid=$!
     
+    # Monitor fifo for "Starting Nmap" in a background process
     (
+        # Create a flag file when "Starting Nmap" is detected
         tail -f "$tempfile" | grep -m 1 "Starting Nmap" > /dev/null 2>&1
         echo "start" > "$fifo"
     ) &
     local monitor_pid=$!
     
+    # Wait for the signal or timeout
     read -t 5 line < "$fifo" || true
     
+    # Kill the monitor process if it's still running
     kill $monitor_pid 2>/dev/null || true
     
+    # Only now start the spinner (after "Starting Nmap" was detected)
     if [ "$line" = "start" ]; then
         skull_spinner $nmap_pid
     else
+        # If "Starting Nmap" doesn't appear, just wait for completion
         wait $nmap_pid
     fi
     
+    # Show output from tempfile
     cat "$tempfile"
     
+    # Cleanup
     rm "$tempfile"
     rm "$fifo"
 }
@@ -224,8 +233,23 @@ info_msg "Haste $TARGET...!!"
 
 if [[ "$STEALTH_MODE" == true ]]; then
     info_msg "Running in stealth mode with fragmented packets"
-    run_nmap_with_spinner "sudo nmap -f -n -Pn --data-length 32 '$TARGET'"
+ if [[ "$NO_DIR" == true ]]; then
+        run_nmap_with_spinner "sudo nmap -f -n -p- --min-rate=10000 -Pn '$TARGET'"
+    else
+        run_nmap_with_spinner "sudo nmap -f -n -p- --min-rate=10000 -Pn -oG tcp_ports.txt '$TARGET'"
+
+        SORTED_TCP_PORTS=$(grep -oP '([\d]+)/open' tcp_ports.txt | awk -F/ '{print $1}' | tr '\n' ',')
+        
+        if [[ -n "$SORTED_TCP_PORTS" ]]; then
+            info_msg "Performing detailed TCP service scan on ports: $SORTED_TCP_PORTS"
+            run_nmap_with_spinner "sudo nmap -f -n -sCV -Pn -oA nmap_tcp -p '${SORTED_TCP_PORTS%,}' '$TARGET'"
+        fi
+    fi
+    
     success_msg "Stealth scan completed."
+    if [[ "$NO_DIR" == false ]]; then
+        ls
+    fi
     exit 0
 fi
 
